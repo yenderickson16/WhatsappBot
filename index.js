@@ -31,11 +31,21 @@ const client = new Client({
 });
 
 // Generar QR en los logs (para escanear desde la consola de Render)
+// Busca esta parte en tu código y REEMPLÁZALA completa:
+
 client.on('qr', (qr) => {
-    console.log('------------------------------------------------');
-    console.log('ESCANEA ESTE QR PARA INICIAR SESIÓN:');
+    // 1. Intentamos imprimirlo en terminal (por si acaso)
+    console.log('QR RECIBIDO (Intentando mostrar en terminal):');
     qrcode.generate(qr, { small: true });
-    console.log('------------------------------------------------');
+    
+    // 2. LA SOLUCIÓN: Generamos una URL externa para ver el QR
+    // Usamos una API pública segura (goqr.me o qrserver) para dibujar el código
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qr)}`;
+
+    console.log('\n⚠️ SI EL QR DE ARRIBA SE VE DEFORME, HAZ CLIC AQUÍ: ⚠️');
+    console.log('👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇');
+    console.log(qrUrl);
+    console.log('👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆\n');
 });
 
 client.on('ready', () => {
