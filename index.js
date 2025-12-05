@@ -7,20 +7,25 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// --- CONFIGURACIÓN DEL CLIENTE DE WHATSAPP ---
+// --- CONFIGURACIÓN "ANTI-CRASH" PARA RENDER ---
 const client = new Client({
     authStrategy: new LocalAuth({
-        dataPath: './auth_info' // Guardamos sesión aquí
+        dataPath: './auth_info'
     }),
     puppeteer: {
-        // Importante para Docker: Usar el Chrome instalado en el sistema
+        // Usamos el Chrome instalado por Docker
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable',
+        headless: true, // Importante explícito
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage', // Evita errores de memoria compartida en Docker
-            '--single-process', // Ahorra recursos
-            '--no-zygote'
+            '--disable-dev-shm-usage', // Evita errores de memoria compartida
+            '--disable-accelerated-2d-canvas', // Ahorra GPU/Memoria
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu', // Render no tiene GPU, esto evita errores
+            '--disable-extensions'
+            // HEMOS QUITADO '--single-process' PORQUE CAUSA EL ERROR QUE VISTE
         ],
     }
 });
