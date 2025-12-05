@@ -7,29 +7,36 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// --- CONFIGURACIÓN "ANTI-CRASH" PARA RENDER ---
+// --- CONFIGURACIÓN DEL CLIENTE DE WHATSAPP ---
 const client = new Client({
     authStrategy: new LocalAuth({
         dataPath: './auth_info'
     }),
     puppeteer: {
-        // Usamos el Chrome instalado por Docker
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable',
-        headless: true, // Importante explícito
+        headless: true,
         args: [
+            // Argumentos de estabilidad (ya los tenías)
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage', // Evita errores de memoria compartida
-            '--disable-accelerated-2d-canvas', // Ahorra GPU/Memoria
+            '--disable-dev-shm-usage',
             '--no-first-run',
             '--no-zygote',
-            '--disable-gpu', // Render no tiene GPU, esto evita errores
-            '--disable-extensions'
-            // HEMOS QUITADO '--single-process' PORQUE CAUSA EL ERROR QUE VISTE
+            '--disable-gpu',
+            '--disable-extensions',
+            '--disable-accelerated-2d-canvas',
+            
+            // --- NUEVOS ARGUMENTOS CLAVE ANTI-MEMORIA (OOM KILL) ---
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--disable-web-security',
+            '--autoplay-policy=user-gesture-required',
+            '--enable-features=NetworkService,NetworkServiceInProcess',
+            '--process-per-site' // Intentamos esto para ver si reduce la carga inicial
         ],
     }
 });
-
 // Generar QR en los logs (para escanear desde la consola de Render)
 // Busca esta parte en tu código y REEMPLÁZALA completa:
 
